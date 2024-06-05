@@ -1,9 +1,9 @@
 import os
 import shutil
 
-input_directory = "C:\\Users\\admin\\PycharmProjects\\Test input\\bin\\"
-output_directory = 'C:\\Users\\admin\\OneDrive\\Desktop\\Fresh_Output\\'
- 
+input_directory = "C:\\Users\\admin\\PycharmProjects\\Test input\\bin - Copy (3) - Copy\\"
+output_directory = "C:\\Users\\admin\\PycharmProjects\\Test input\\outbin\\"
+
 def merge_dir(in_directory, out_directory):
     # Define the name of the new folder
     instrument_folder = os.path.join(out_directory, "Instruments")
@@ -12,39 +12,36 @@ def merge_dir(in_directory, out_directory):
     if not os.path.exists(instrument_folder):
         os.makedirs(instrument_folder)
 
-    # List all subdirectories in the source directory
-    subdirectories = [d for d in os.listdir(in_directory) if os.path.isdir(os.path.join(in_directory, d))]
+    i = 0  # Initialize the folder index
+    while True:
+        folder_name = str(i)
+        folder_path = os.path.join(in_directory, folder_name)
+        if not os.path.exists(folder_path):
+            print(f"Folder '{folder_path}' not found. Exiting loop.")
+            break
 
-    for subdir in subdirectories:
-        subdir_path = os.path.join(in_directory, subdir)
-        # List all items in the subdirectory
-        entries = os.listdir(subdir_path)
+        print(f"Processing folder: {folder_path}")
 
-        # Initialize an empty list to store the names of directories
-        inner_folders = []
+        # List all subdirectories in the current folder and sort them
+        subdirectories = sorted([d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))])
+        print(f"Subdirectories found: {subdirectories}")
 
-        # Iterate through each entry in the directory
-        for d in entries:
-            # Construct the full path of the entry
-            full_path = os.path.join(subdir_path, d)
+        for subdir in subdirectories:
+            subdir_path = os.path.join(folder_path, subdir)
+            dest_subdir_folder_path = os.path.join(instrument_folder, subdir)
 
-            # Check if this path is a directory
-            if os.path.isdir(full_path):
-                # If it's a directory, add it to the list
-                inner_folders.append(d)
+            print(f"Preparing to move contents from '{subdir_path}' to '{dest_subdir_folder_path}'")
 
-        for inner_folder in inner_folders:
-            inner_folder_path = os.path.join(subdir_path, inner_folder)
-            dest_inner_folder_path = os.path.join(instrument_folder, inner_folder)
+            # Ensure the destination subdir folder exists
+            if not os.path.exists(dest_subdir_folder_path):
+                os.makedirs(dest_subdir_folder_path)
 
-            # Ensure the destination inner folder exists
-            if not os.path.exists(dest_inner_folder_path):
-                os.makedirs(dest_inner_folder_path)
+            # List all items in the subdir folder and sort them
+            entries = sorted(os.listdir(subdir_path))
 
-            # Move all items from inner folder to the destination inner folder
-            for item in os.listdir(inner_folder_path):
-                src_item_path = os.path.join(inner_folder_path, item)
-                dest_item_path = os.path.join(dest_inner_folder_path, item)
+            for item in entries:
+                src_item_path = os.path.join(subdir_path, item)
+                dest_item_path = os.path.join(dest_subdir_folder_path, item)
 
                 if os.path.isfile(src_item_path):
                     if not os.path.exists(dest_item_path):
@@ -63,5 +60,6 @@ def merge_dir(in_directory, out_directory):
                                 shutil.move(src_sub_item_path, dest_sub_item_path)
                                 print(f"Moved file '{src_sub_item_path}' to '{dest_sub_item_path}'")
 
+        i += 1  # Increment the folder index
 
 merge_dir(input_directory, output_directory)
